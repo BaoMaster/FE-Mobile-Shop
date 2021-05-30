@@ -1,0 +1,60 @@
+@import 'antd/dist/antd.css';
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.ant-modal-body {
+  overflow: auto !important;
+}
+.ant-form-item-label>label.ant-form-item-required::before{
+  display: none !important;}
+.ant-form-item-label>label.ant-form-item-required::after{
+  display: inline-block;
+  margin-right: 4px;
+  color: #f5222d;
+  font-size: 14px;
+  font-family: SimSun, sans-serif;
+  line-height: 1;
+  content: '*';
+
+}
+    /* .ant-form-item-required {
+   
+        display: inline-block;
+        margin-right: 4px;
+        color: #f5222d;
+        font-size: 14px;
+        line-height: 1;
+        content: '*';
+}
+
+.ant-form-item-required {
+  &:before {
+    display: none !important;
+  }
+
+  &:after {
+    display: inline-block;
+    margin-right: 4px;
+    color: #f5222d;
+    font-size: 14px;
+    font-family: SimSun, sans-serif;
+    line-height: 1;
+    content: '*';
+  }
+} */
