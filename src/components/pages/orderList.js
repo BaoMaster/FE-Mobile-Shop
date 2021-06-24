@@ -4,7 +4,8 @@ import {
   LoadingOutlined,
   MinusCircleOutlined,
   PlusOutlined,
-} from "@ant-design/icons";
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -22,21 +23,21 @@ import {
   Space,
   Table,
   Tabs,
-} from "antd";
-import axios from "axios";
-import PropTypes from "prop-types";
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { useHistory } from "react-router";
-import { Link, withRouter } from "react-router-dom";
+} from 'antd';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { useHistory } from 'react-router';
+import { Link, withRouter } from 'react-router-dom';
 
-import LocalStorageService from "../../config/LocalStorageService";
-import notification from "../../helper/Notification";
-import orderService from "../../redux/order/order.service";
-import productActions from "../../redux/product/actions";
-import shopProductActions from "../../redux/shopProduct/actions";
-import LayoutContentWrapper from "../../utility/layoutWrapper";
-import { BEService } from "./index.service";
+import LocalStorageService from '../../config/LocalStorageService';
+import notification from '../../helper/Notification';
+import orderService from '../../redux/order/order.service';
+import productActions from '../../redux/product/actions';
+import shopProductActions from '../../redux/shopProduct/actions';
+import LayoutContentWrapper from '../../utility/layoutWrapper';
+import { BEService } from './index.service';
 
 // import { getAll } from "../../Actions/authActions";
 // import CreateOrUpdateUser from "./CreateOrUpdateCompany.js";
@@ -49,121 +50,113 @@ const { TextArea } = Input;
 const { TabPane } = Tabs;
 
 const formItemProp = {
-  labelAlign: "left",
+  labelAlign: 'left',
   // labelCol: { span: 11 },
 };
 
 const labelItem = {
-  labelCol: { span: 8 },
+  labelCol: { span: 3 },
 };
 class OrderList extends Component {
+  getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={(node) => {
+            this.searchInput = node;
+          }}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => this.handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button type='primary' onClick={() => this.handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size='small' style={{ width: 90 }}>
+            Search
+          </Button>
+          <Button onClick={() => this.handleReset(clearFilters)} size='small' style={{ width: 90 }}>
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) => (record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : ''),
+    onFilterDropdownVisibleChange: (visible) => {
+      if (visible) {
+        setTimeout(() => this.searchInput.select(), 100);
+      }
+    },
+  });
+
+  handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    this.setState({
+      searchText: selectedKeys[0],
+      searchedColumn: dataIndex,
+    });
+  };
+
+  handleReset = (clearFilters) => {
+    clearFilters();
+    this.setState({ searchText: '' });
+  };
+
   columns = [
     {
-      title: "User Name",
-      dataIndex: "customerName",
+      title: 'User Name',
+      dataIndex: 'customerName',
+      ...this.getColumnSearchProps('customerName'),
     },
     {
-      title: "PhoneNumber",
-      dataIndex: "phone",
+      title: 'PhoneNumber',
+      dataIndex: 'phone',
+      ...this.getColumnSearchProps('phone'),
     },
     {
-      title: "Address",
+      title: 'Address',
       //   key: "brand",
-      dataIndex: "address",
+      dataIndex: 'address',
     },
     {
-      title: "OrderId",
+      title: 'OrderId',
       //   key: "description",
-      dataIndex: "orderId",
+      dataIndex: 'orderId',
+      ...this.getColumnSearchProps('orderId'),
     },
-    // {
-    //   title: 'Product',
-    //   children: [
-    //     {
-    //       title: 'Product',
-    //       dataIndex: 'productInfo',
-    //       render: (item) => {
-    //         return (
-    //           <Col>
-    //             {item.map((i) => (
-    //               <Row>{i.productname}</Row>
-    //             ))}
-    //           </Col>
-    //         );
-    //       },
-    //     },
-    //     {
-    //       title: 'Amount',
-    //       dataIndex: 'productInfo',
-    //       render: (item) => {
-    //         return (
-    //           <Col>
-    //             {item.map((i) => (
-    //               <Row>-{i.amount}-</Row>
-    //             ))}
-    //           </Col>
-    //         );
-    //       },
-    //       width: 50,
-    //     },
-    //   ],
-    // },
+
     {
-      title: "Total",
-      dataIndex: "total",
+      title: 'Total',
+      dataIndex: 'total',
     },
     {
-      title: "isPaid",
-      dataIndex: "isPaid",
+      title: 'isPaid',
+      dataIndex: 'isPaid',
       render: (item) => {
-        return (
-          <span>
-            {" "}
-            {item === true ? (
-              <CheckOutlined style={{ color: "green" }} />
-            ) : (
-              <CloseOutlined style={{ color: "red" }} />
-            )}
-          </span>
-        );
+        return <span> {item === true ? <CheckOutlined style={{ color: 'green' }} /> : <CloseOutlined style={{ color: 'red' }} />}</span>;
       },
     },
     {
-      title: "Status",
-      dataIndex: "status",
+      title: 'Status',
+      dataIndex: 'status',
       render: (item) => {
         // let statusShow=
-        let color;
-        if (item === "canceled") {
-          color = "red";
-        }
-        if (item === "delivered") {
-          color = "green";
-        } else {
-          color = "blue";
-        }
-        return <span style={{ color: color }}>{item}</span>;
+
+        return <span>{item}</span>;
       },
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (com) => {
         return (
           <div>
-            <Button
-              className="btn-delete"
-              type="danger"
-              onClick={() => this.handleToggleDeletedModal(true, com.id)}
-            >
+            <Button className='btn-delete' type='danger' onClick={() => this.handleToggleDeletedModal(true, com.orderId)}>
               Delete
             </Button>
 
-            <Button
-              className="btn-update"
-              type="primary"
-              onClick={() => this.handleUpdate(com.orderId)}
-            >
+            <Button className='btn-update' type='primary' onClick={() => this.handleUpdate(com.orderId)}>
               Update
             </Button>
           </div>
@@ -184,27 +177,30 @@ class OrderList extends Component {
       totalItem: 0,
       visibleDelete: false,
       productIdDelete: null,
-      searchInput: "",
-      productname: "",
-      price: "",
-      amount: "",
-      illustration: "",
-      brand: "",
-      productcode: "",
-      description: "",
+      searchInput: '',
+      productname: '',
+      price: '',
+      amount: '',
+      illustration: '',
+      brand: '',
+      productcode: '',
+      description: '',
       errors: {},
       loading: false,
-      imageUrl: "",
-      paid: "",
-      status: "",
+      imageUrl: '',
+      paid: '',
+      status: '',
       orderData: null,
       productArray: [],
+      searchText: '',
+      searchedColumn: '',
     };
   }
   componentDidMount() {
     this.getProduct();
   }
-  handleToggleDeletedModal = (isShow, id = 0) => {
+  handleToggleDeletedModal = (isShow, id) => {
+    console.log('id', id);
     this.setState({
       ...this.state,
       productIdDelete: id,
@@ -213,23 +209,23 @@ class OrderList extends Component {
   };
   getBase64 = (img, callback) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => callback(reader.result));
+    reader.addEventListener('load', () => callback(reader.result));
     reader.readAsDataURL(img);
   };
 
   beforeUpload = (file) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG file!");
+      message.error('You can only upload JPG/PNG file!');
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
-      message.error("Image must smaller than 2MB!");
+      message.error('Image must smaller than 2MB!');
     }
     return isJpgOrPng && isLt2M;
   };
   handleChange = (info) => {
-    if (info.file.status === "uploading") {
+    if (info.file.status === 'uploading') {
       this.setState({
         loading: true,
         // illustration: info.file,
@@ -239,13 +235,13 @@ class OrderList extends Component {
       // console.log("info:", info.file);
       return;
     }
-    if (info.file.status === "done") {
+    if (info.file.status === 'done') {
       // Get this url from response in real world.
       this.setState({
         // loading: true,
         illustration: info.file.response.name,
       });
-      console.log("info:", info.file.response.name);
+      console.log('info:', info.file.response.name);
 
       this.getBase64(info.file.originFileObj, (imageUrl) =>
         this.setState({
@@ -258,7 +254,7 @@ class OrderList extends Component {
 
   getProduct = async () => {
     await axios
-      .get("http://localhost:8080/api/get-order")
+      .get('http://localhost:8080/api/get-order')
       .then((response) => {
         console.log(response.data.data);
         this.setState({
@@ -272,10 +268,10 @@ class OrderList extends Component {
   };
 
   handleUpdate = (orderid) => {
-    console.log("bao:", orderid, "-", this.state.paid, "-", this.state.status);
+    console.log('bao:', orderid, '-', this.state.paid, '-', this.state.status);
     this.props.getOrderDetail(orderid).then((response) => {
       const value = response.data.data;
-      console.log("data", value);
+      console.log('data', value);
       this.setState({
         isShowModal: true,
         orderData: value,
@@ -304,25 +300,25 @@ class OrderList extends Component {
 
   handleDelete = (productId) => {
     this.props.deleteProduct(productId).then((res) => {
-      console.log("status:", res.data.status);
-      if (res.data.status === "success") {
-        console.log("okkkk");
+      console.log('status:', res.data.status);
+      if (res.data.status === 200) {
+        console.log('okkkk');
         this.getProduct();
         this.handleToggleDeletedModal(false, 0);
-        notification("success", `Delete Product Successfully`, "");
+        notification('success', `Delete Order Successfully`, '');
       }
     });
   };
 
   cleanData = () => {
     this.setState({
-      brand: "",
-      productname: "",
-      productcode: "",
-      illustration: "",
-      description: "",
-      price: "",
-      amount: "",
+      brand: '',
+      productname: '',
+      productcode: '',
+      illustration: '',
+      description: '',
+      price: '',
+      amount: '',
     });
   };
   handleAva = () => {};
@@ -335,28 +331,38 @@ class OrderList extends Component {
     this.setState({ isShowModal: false });
   };
   onUpdateOrder = async (data) => {
-    console.log(111, data);
     const orderId = this.state.orderData.orderId;
     let statusUpdate = null;
     switch (data.status) {
       case 0:
-        statusUpdate = "canceled";
+        statusUpdate = 'canceled';
         break;
       case 1:
-        statusUpdate = "waiting-verify";
+        statusUpdate = 'waiting-verify';
 
         break;
       case 2:
-        statusUpdate = "delivering";
+        statusUpdate = 'delivering';
 
         break;
       case 3:
-        statusUpdate = "delivered";
+        statusUpdate = 'delivered';
 
         break;
 
       default:
         break;
+    }
+    const arrData = [];
+    for (const i of data.product) {
+      const obj = {
+        productId: i.productId,
+        price: i.price,
+        size: i.size,
+        color: i.color,
+        amount: i.amount,
+      };
+      arrData.push(obj);
     }
     const updateData = {
       address: data.address,
@@ -364,17 +370,24 @@ class OrderList extends Component {
       isPaid: data.paid,
       phone: data.phoneNumber,
       status: statusUpdate,
-      productInfo: data.product,
+      productInfo: arrData,
     };
-    // await this.props.updateOrder(orderId, updateData).then((response) => {
-    //   console.log("ok");
-    // });
+    console.log('data', updateData);
+    await this.props.updateOrder(orderId, updateData).then((response) => {
+      console.log('ok');
+      if (response.data.status === 200) {
+        notification('success', `Update order Successfully`, '');
+        this.getProduct();
+      } else {
+        notification('error', response.data.message, '');
+      }
+    });
   };
   onFinish = (values) => {
-    console.log("Received values of form:", values);
+    console.log('Received values of form:', values);
   };
   re = (e) => {
-    console.log("e", e);
+    console.log('e', e);
   };
   render() {
     const { loading, imageUrl, orderData, productArray } = this.state;
@@ -384,14 +397,14 @@ class OrderList extends Component {
         <div style={{ marginTop: 8 }}>Upload</div>
       </div>
     );
-    console.log("orderData", orderData);
-    let userName = "";
-    let phoneNumber = "";
-    let address = "";
-    let note = "";
-    let product = "";
-    let paid = "";
-    let status = "";
+    console.log('orderData', orderData);
+    let userName = '';
+    let phoneNumber = '';
+    let address = '';
+    let note = '';
+    let product = '';
+    let paid = '';
+    let status = '';
     if (orderData) {
       userName = orderData.customerName;
       phoneNumber = orderData.phone;
@@ -399,19 +412,20 @@ class OrderList extends Component {
       note = orderData.note;
       product = orderData.productInfo;
       paid = orderData.isPaid;
-      if (orderData.status === "waiting-verify") {
+      if (orderData.status === 'waiting-verify') {
       }
       switch (orderData.status) {
-        case "waiting-verify":
+        case 'waiting-verify':
           status = 1;
           break;
-        case "delivering":
+        case 'delivering':
           status = 2;
           break;
-        case "delivered":
+        case 'delivered':
           status = 3;
           break;
-        case "canceled":
+        case 'canceled':
+          console.log('here');
           status = 0;
           break;
         default:
@@ -422,37 +436,23 @@ class OrderList extends Component {
     return (
       // <LayoutContentWrapper className="company">
       <div>
-        <Card header={{ title: "Product" }}>
+        <Card header={{ title: 'Product' }}>
           <Modal
-            title="Are you sure?"
+            title='Are you sure?'
             visible={this.state.visibleDelete}
             onOk={() => this.handleDelete(this.state.productIdDelete)}
-            okType={"danger"}
-            onCancel={() =>
-              this.handleToggleDeletedModal(false, this.state.productIdDelete)
-            }
+            okType={'danger'}
+            onCancel={() => this.handleToggleDeletedModal(false, this.state.productIdDelete)}
           >
             <p>Do you really want to delete this order?</p>
           </Modal>
 
-          <Table
-            columns={this.columns}
-            dataSource={this.state.productsInTable}
-            rowKey={(item) => item.userId}
-          />
+          <Table columns={this.columns} dataSource={this.state.productsInTable} rowKey={(item) => item.userId} />
         </Card>
 
         {this.state.isShowModal && (
           <>
-            <Modal
-              width="500px"
-              className="company-details"
-              title={"Update order"}
-              visible={this.state.isShowModal}
-              onOk={this.handleOk}
-              onCancel={this.handleCancel}
-              footer={""}
-            >
+            <Modal width='1000px' className='company-details' title={'Update order'} visible={this.state.isShowModal} onOk={this.handleOk} onCancel={this.handleCancel} footer={''}>
               <Form
                 onFinish={this.onUpdateOrder}
                 initialValues={{
@@ -468,18 +468,18 @@ class OrderList extends Component {
                   // password: email,
                 }}
               >
-                <Form.Item {...formItemProp} {...labelItem} label="User Name">
+                <Form.Item {...formItemProp} {...labelItem} label='User Name'>
                   <span>{userName}</span>
                 </Form.Item>
                 <Form.Item
                   {...formItemProp}
                   {...labelItem}
-                  name="phoneNumber"
-                  label="Phone number"
+                  name='phoneNumber'
+                  label='Phone number'
                   rules={[
                     {
                       required: true,
-                      message: "Please input your Phone number",
+                      message: 'Please input your Phone number',
                     },
                   ]}
                 >
@@ -488,118 +488,70 @@ class OrderList extends Component {
                 <Form.Item
                   {...formItemProp}
                   {...labelItem}
-                  name="address"
-                  label="Address"
+                  name='address'
+                  label='Address'
                   rules={[
                     {
                       required: true,
-                      message: "Please input Address",
+                      message: 'Please input Address',
                     },
                   ]}
                 >
                   <Input />
                 </Form.Item>
-                <Form.List name="product">
+                <Form.List name='product'>
                   {(fields, { add, remove }) => (
                     <>
                       {fields.map(({ key, name, fieldKey, ...restField }) => (
-                        <Space
-                          key={key}
-                          style={{ display: "flex", marginBottom: 8 }}
-                          align="baseline"
-                        >
-                          <Form.Item
-                            {...restField}
-                            label="Product"
-                            name={[name, "productname"]}
-                            fieldKey={[fieldKey, "productname"]}
-                            // rules={[
-                            //   {
-                            //     required: true,
-                            //     message: "Please input product",
-                            //   },
-                            // ]}
-                            style={{ marginLeft: "20px" }}
-                          >
-                            <Input />
+                        <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align='baseline'>
+                          <Form.Item {...restField} label='Product' name={[name, 'productname']} fieldKey={[fieldKey, 'productname']} style={{ marginLeft: '20px' }}>
+                            <Input disabled />
                           </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            label="Amount"
-                            name={[name, "amount"]}
-                            fieldKey={[fieldKey, "amount"]}
-                            // rules={[
-                            //   {
-                            //     required: true,
-                            //     message: "Please input product amount",
-                            //   },
-                            // ]}
-                          >
-                            <InputNumber placeholder="Amount" min={1} />
+                          <Form.Item {...restField} label='Amount' name={[name, 'amount']} fieldKey={[fieldKey, 'amount']}>
+                            <InputNumber placeholder='Amount' style={{ width: '40px' }} disabled />
                           </Form.Item>
-                          <MinusCircleOutlined
-                            onClick={() => {
-                              const a = productArray;
-                              a.splice(fieldKey, 1);
-                              // this.setState({ productArray });
-                            }}
-                          />
+                          <Form.Item {...restField} label='Price' name={[name, 'price']} fieldKey={[fieldKey, 'price']}>
+                            <InputNumber disabled />
+                          </Form.Item>
+                          <Form.Item {...restField} label='Size' name={[name, 'size']} fieldKey={[fieldKey, 'size']}>
+                            <InputNumber disabled />
+                          </Form.Item>
+                          <Form.Item {...restField} label='Color' name={[name, 'color']} fieldKey={[fieldKey, 'color']}>
+                            <InputNumber disabled />
+                          </Form.Item>
                         </Space>
                       ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<PlusOutlined />}
-                        >
-                          Add product
-                        </Button>
-                      </Form.Item>
                     </>
                   )}
                 </Form.List>
 
-                <Form.Item
-                  {...formItemProp}
-                  {...labelItem}
-                  name="note"
-                  label="Note"
-                >
+                <Form.Item {...formItemProp} {...labelItem} name='note' label='Note'>
                   <TextArea rows={4} />
                 </Form.Item>
-                <Form.Item
-                  {...formItemProp}
-                  {...labelItem}
-                  name="paid"
-                  label="Paid"
-                >
+                <Form.Item {...formItemProp} {...labelItem} name='paid' label='Paid'>
                   <Radio.Group>
-                    <Radio value="true">
-                      <CheckOutlined style={{ color: "green" }} />
+                    <Radio value={true}>
+                      <CheckOutlined style={{ color: 'green' }} />
                     </Radio>
-                    <Radio value="false">
-                      <CloseOutlined style={{ color: "red" }} />
+                    <Radio value={false}>
+                      <CloseOutlined style={{ color: 'red' }} />
                     </Radio>
                   </Radio.Group>
                 </Form.Item>
-                <Form.Item
-                  {...formItemProp}
-                  {...labelItem}
-                  name="status"
-                  label="Order status"
-                >
-                  {status !== 0 && (
+                <Form.Item {...formItemProp} {...labelItem} name='status' label='Order status'>
+                  {0 <= status < 4 ? (
                     <Slider
                       min={0}
                       max={3}
                       marks={{
-                        0: <span style={{ color: "red" }}>Canceled</span>,
+                        0: <span style={{ color: 'red' }}>Canceled</span>,
                         1: <span>Waiting verify</span>,
                         2: <span>Delivering</span>,
-                        3: <span style={{ color: "green" }}>Delivered</span>,
+                        3: <span style={{ color: 'green' }}>Delivered</span>,
                       }}
                     />
+                  ) : (
+                    orderData.status
                   )}
                   {/* {status===0&&
                   
@@ -611,16 +563,12 @@ class OrderList extends Component {
                     <Radio value='canceled'>Canceled</Radio>
                   </Radio.Group> */}
                 </Form.Item>
-                <Row justify="end">
+                <Row justify='end'>
                   <Space>
-                    <Button htmlType="button" onClick={this.handleCancel}>
+                    <Button htmlType='button' onClick={this.handleCancel}>
                       Cancel
                     </Button>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      loading={this.state.updateLoading}
-                    >
+                    <Button type='primary' htmlType='submit' loading={this.state.updateLoading}>
                       OK
                     </Button>
                   </Space>
@@ -634,15 +582,11 @@ class OrderList extends Component {
   }
 }
 const mapDispatchToProps = (dispatch) => ({
-  deleteProduct: (productId) =>
-    dispatch(productActions.deleteProduct(productId)),
-  updateProduct: (productId, product) =>
-    dispatch(productActions.updateProduct(productId, product)),
-  getProductById: (productId) =>
-    dispatch(productActions.getProductById(productId)),
+  deleteProduct: (productId) => dispatch(productActions.deleteProduct(productId)),
+  updateProduct: (productId, product) => dispatch(productActions.updateProduct(productId, product)),
+  getProductById: (productId) => dispatch(productActions.getProductById(productId)),
   addProduct: (product) => dispatch(productActions.addProduct(product)),
-  updateOrder: (orderId, data) =>
-    dispatch(orderService.updateOrder(orderId, data)),
+  updateOrder: (orderId, data) => dispatch(orderService.updateOrder(orderId, data)),
   getOrderDetail: (orderId) => dispatch(orderService.getOrderDetail(orderId)),
 });
 

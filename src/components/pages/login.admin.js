@@ -1,11 +1,11 @@
-import { Button, Checkbox, Form, Input } from "antd";
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
+import { Button, Checkbox, Form, Input, Modal } from 'antd';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
 
-import localStorageService from "../../config/LocalStorageService";
-import notification from "../../helper/Notification";
-import userActions from "../../redux/user/actions";
+import localStorageService from '../../config/LocalStorageService';
+import notification from '../../helper/Notification';
+import userActions from '../../redux/user/actions';
 
 class Login extends Component {
   constructor(props) {
@@ -16,11 +16,13 @@ class Login extends Component {
     // this.onSubmit = this.onSubmit.bind(this);
 
     this.state = {
-      username: "",
-      email: "",
-      password: "",
-      idverify: "",
+      username: '',
+      email: '',
+      password: '',
+      idverify: '',
       errors: {},
+      isShowVerify: false,
+      userEmail: null,
     };
   }
 
@@ -45,17 +47,27 @@ class Login extends Component {
   onChange = (e) => {
     this.setState({ [e.target.id]: e.target.value });
   };
+  handleCancel = (e) => {
+    this.setState({ isShowVerify: false });
+  };
 
-  submit = () => {
+  submit = async () => {
     const obj = {
       email: this.state.email,
       password: this.state.password,
     };
-    this.props.loginUser(obj);
+    await this.props.loginAdmin(obj).then(async (res) => {
+      console.log('e', res);
+      if (res.data.message === 'Please verify your account !') {
+        this.setState({ isShowVerify: true, userEmail: this.state.email });
+      } else {
+        await this.props.loginUser(obj);
+      }
+    });
   };
 
   render() {
-    const { errors } = this.state;
+    const { errors, userEmail } = this.state;
     const layout = {
       labelCol: { span: 8 },
       wrapperCol: { span: 16 },
@@ -65,59 +77,66 @@ class Login extends Component {
     };
 
     const onFinish = (values) => {
-      console.log("Success:", values);
+      console.log('Success:', values);
     };
 
     const onFinishFailed = (errorInfo) => {
-      console.log("Failed:", errorInfo);
+      console.log('Failed:', errorInfo);
     };
     return (
-      <Form
-        {...layout}
-        name="basic"
-        initialValues={{ remember: true }}
-        onFinish={this.submit}
-        onFinishFailed={onFinishFailed}
-      >
-        <label>
-          <h1 style={{ textAlign: "center" }}>ADMIN LOGIN</h1>
-        </label>
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: "Please input your email!" }]}
-          style={{ marginTop: "80px" }}
+      <div>
+        <Form {...layout} name='basic' initialValues={{ remember: true }} onFinish={this.submit} onFinishFailed={onFinishFailed}>
+          <label style={{ marginLeft: '39%' }}>
+            <h1 style={{ textAlign: 'center' }}>ADMIN LOGIN</h1>
+          </label>
+          <Form.Item label='Email' name='email' rules={[{ required: true, message: 'Please input your email!' }]} style={{ marginTop: '80px' }}>
+            <Input style={{ width: '40%' }} onChange={this.onChange} id='email' />
+          </Form.Item>
+
+          <Form.Item label='Password' name='password' rules={[{ required: true, message: 'Please input your password!' }]}>
+            <Input.Password style={{ width: '40%' }} onChange={this.onChange} id='password' />
+          </Form.Item>
+
+          <Form.Item {...tailLayout} name='remember' valuePropName='checked'>
+            <Checkbox style={{ textAlign: 'left', float: 'left', clear: 'both' }}>Remember me</Checkbox>
+            <Link to='/admin/quick-signup' style={{ marginLeft: '12%', marginRight: '1%' }}>
+              Sign up
+            </Link>
+            /
+            <Link to='/admin/forgot-password' style={{ marginLeft: '1%' }}>
+              Forgot password
+            </Link>
+          </Form.Item>
+
+          <Form.Item {...tailLayout}>
+            <Button type='submit' htmlType='submit' style={{ backgroundColor: '#1890ff', color: 'white', width: '15%', marginLeft: '12%' }}>
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+        <Modal
+          className='company-details'
+          title={'Verify Account'}
+          visible={this.state.isShowVerify}
+          // onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          footer={''}
         >
-          <Input style={{ width: "40%" }} onChange={this.onChange} id="email" />
-        </Form.Item>
+          <Form {...layout} name='basic' initialValues={{ remember: true }} onFinish={this.submit} onFinishFailed={onFinishFailed}>
+            <label style={{ marginLeft: '25%', fontSize: '20px', marginBottom: '20px' }}>Email: {userEmail}</label>
+            <Form.Item label='VERIFY CODE' name='code' rules={[{ required: true, message: 'Please input your verify code!' }]}>
+              <Input />
+            </Form.Item>
 
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password
-            style={{ width: "40%" }}
-            onChange={this.onChange}
-            id="password"
-          />
-        </Form.Item>
+            <Form.Item {...tailLayout}>
+              <Button type='submit' htmlType='submit' style={{ backgroundColor: '#1890FF', color: 'white', marginLeft: '60px', marginTop: '20px' }}>
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
 
-        <Form.Item {...tailLayout} name="remember" valuePropName="checked">
-          <Checkbox style={{ textAlign: "left", float: "left", clear: "both" }}>
-            Remember me
-          </Checkbox>
-          <Link to="/list" style={{ marginLeft: "18%" }}>
-            Forgot password
-          </Link>
-        </Form.Item>
-
-        <Form.Item {...tailLayout}>
-          <Button type="submit" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
       // <div style={{ marginTop: 10 }}>
       //   <h3>Login page :</h3>
       //   <form onSubmit={this.onSubmit}>
@@ -200,6 +219,7 @@ const mapDispatchToProps = (dispatch) => ({
   getUserById: (userId) => dispatch(userActions.getUserById(userId)),
   addUser: (user) => dispatch(userActions.addUser(user)),
   loginUser: (user) => dispatch(userActions.loginUser(user)),
+  loginAdmin: (data) => dispatch(userActions.adminLogin(data)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Login));

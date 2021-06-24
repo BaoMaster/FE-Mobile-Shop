@@ -40,7 +40,19 @@ const userActions = {
 
   deleteUser: (userId) => {
     return (dispatch) => {
-      return axios.delete(`./users/api/delete/${userId}`);
+      return axios.delete(`./api/delete/${userId}`);
+    };
+  },
+  adminLogin: (data) => {
+    console.log(1);
+    return async (dispatch) => {
+      try {
+        const temp = await axios.post(`./api/loginadmin`, data);
+        return temp;
+      } catch (err) {
+        console.log(2);
+        return { data: [{ message: 'error' }] };
+      }
     };
   },
   loginUser: (user) => {
@@ -59,6 +71,7 @@ const userActions = {
           });
       } catch (err) {
         // console.log("staus:", err.response.status, "-", err.response.message);
+        notification(err.response.data.status, err.response.data.message);
 
         dispatch({ type: authActions.LOGIN_FAIL, data: err?.response?.data });
       }
@@ -77,6 +90,31 @@ const userActions = {
   getUserById: (userId) => {
     return (dispatch) => {
       return axios.get(`./api/get-one/${userId}`);
+    };
+  },
+  getAllUser: (userId) => {
+    return (dispatch) => {
+      return axios.get(`./api/get-all/${userId}`);
+    };
+  },
+  checkEmail: (data) => {
+    return (dispatch) => {
+      return axios.post(`./api/check-email`, data);
+    };
+  },
+  verifyCode: (data) => {
+    return (dispatch) => {
+      return axios.post(`./api/verify-code`, data);
+    };
+  },
+  changePass: (data) => {
+    return (dispatch) => {
+      return axios.post(`./api/change-pass`, data);
+    };
+  },
+  changePassCheck: (data) => {
+    return (dispatch) => {
+      return axios.post(`./api/change-pass-check`, data);
     };
   },
   loginGuestUser: (user) => {

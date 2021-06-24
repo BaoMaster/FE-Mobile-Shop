@@ -1,0 +1,52 @@
+main {
+  padding: 10px;
+  height: 80vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+}
+
+.main::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+}
+
+.sent {
+  flex-direction: row-reverse;
+}
+
+.list p {
+  background: #e5e5ea;
+  color: black;
+  border-radius: 5px;
+  margin: 5px;
+}
+.sent p {
+  max-width: 500px;
+  margin-bottom: 12px;
+  line-height: 24px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  position: relative;
+  color: white;
+  text-align: center;
+  color: white;
+  background: #0b93f6;
+  align-self: flex-end;
+}
+.received p {
+  max-width: 500px;
+  margin-bottom: 12px;
+  line-height: 24px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  position: relative;
+  color: white;
+  text-align: center;
+  background: #e5e5ea;
+  color: black;
+}

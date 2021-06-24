@@ -1,4 +1,4 @@
-import * as actions from "../actions/auth";
+import * as actions from '../actions/auth';
 
 const initialState = {
   isAuthenticated: false,
@@ -6,14 +6,14 @@ const initialState = {
   username: null,
   user: {
     isAuthenticatedUser: false,
-    username: "",
+    username: '',
   },
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actions.CHECK_USER_AUTH: {
-      const auth = JSON.parse(localStorage.getItem("userauth"));
+      const auth = JSON.parse(localStorage.getItem('userauth'));
       if (auth === null) {
         return 0;
       }
@@ -25,22 +25,22 @@ const reducer = (state = initialState, action) => {
         };
     }
     case actions.CHECK_AUTH: {
-      const auth = JSON.parse(localStorage.getItem("auth"));
+      const auth = JSON.parse(localStorage.getItem('auth'));
 
       return {
         ...state,
         isAuthenticated: !!auth,
-        username: auth?.username || "",
+        username: auth?.username || '',
       };
     }
     case actions.CHECK_AUTH_USER: {
-      console.log("baooo:", action);
-      const userAuth = JSON.parse(localStorage.getItem("userauth"));
+      console.log('baooo:', action);
+      const userAuth = JSON.parse(localStorage.getItem('userauth'));
       return {
         ...state,
         user: {
           isAuthenticatedUser: !!userAuth,
-          username: userAuth?.username || "",
+          username: userAuth?.username || '',
         },
       };
     }
@@ -53,7 +53,7 @@ const reducer = (state = initialState, action) => {
 
     case actions.USER_LOGIN_SUCCESS: {
       localStorage.setItem(
-        "userauth",
+        'userauth',
         JSON.stringify({
           token: action.data.access_token,
           username: action.data.username,
@@ -68,13 +68,7 @@ const reducer = (state = initialState, action) => {
       };
     }
     case actions.LOGIN_SUCCESS: {
-      localStorage.setItem(
-        "auth",
-        JSON.stringify({
-          token: action.data.access_token,
-          username: action.data.username,
-        })
-      );
+      localStorage.setItem('auth', JSON.stringify(action.data.access_token));
       return {
         ...state,
         isAuthenticated: true,

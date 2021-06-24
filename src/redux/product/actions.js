@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 // import { UserRoles } from 'src/shared/library/helpers/userRoles';
 
@@ -21,7 +21,12 @@ const productActions = {
 
   deleteProduct: (productId) => {
     return (dispatch) => {
-      return axios.delete(`./products/api/deleteproduct/${productId}`);
+      return axios.delete(`./api/delete-order-by-id/${productId}`);
+    };
+  },
+  deleteProductType: (productTypeId) => {
+    return (dispatch) => {
+      return axios.delete(`./products/api/delete-product-type/${productTypeId}`);
     };
   },
 
@@ -38,6 +43,11 @@ const productActions = {
   getProductById: (productId) => {
     return (dispatch) => {
       return axios.get(`./products/api/get-product-by-id/${productId}`);
+    };
+  },
+  getProductType: () => {
+    return (dispatch) => {
+      return axios.get(`./products/api/get-product-type`);
     };
   },
 };

@@ -1,32 +1,17 @@
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Menu,
-  message,
-  Modal,
-  Select,
-  Table,
-  Tabs,
-  Upload,
-  Row,
-  Col,
-  Radio,
-} from "antd";
-import axios from "axios";
-import PropTypes from "prop-types";
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { useHistory } from "react-router";
-import { Link, withRouter } from "react-router-dom";
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Form, Input, Menu, message, Modal, Radio, Row, Select, Table, Tabs, Upload } from 'antd';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { useHistory } from 'react-router';
+import { Link, withRouter } from 'react-router-dom';
 
-import LocalStorageService from "../../config/LocalStorageService";
-import notification from "../../helper/Notification";
-import productActions from "../../redux/product/actions";
-import shopProductActions from "../../redux/shopProduct/actions";
-import LayoutContentWrapper from "../../utility/layoutWrapper";
+import LocalStorageService from '../../config/LocalStorageService';
+import notification from '../../helper/Notification';
+import productActions from '../../redux/product/actions';
+import shopProductActions from '../../redux/shopProduct/actions';
+import LayoutContentWrapper from '../../utility/layoutWrapper';
 
 const { confirm } = Modal;
 const { Option } = Select;
@@ -37,8 +22,8 @@ const { Search } = Input;
 class ProductType extends Component {
   columns = [
     {
-      title: "Product type",
-      dataIndex: "name",
+      title: 'Product type',
+      dataIndex: 'name',
     },
     // {
     //   title: "Product sub type",
@@ -46,25 +31,17 @@ class ProductType extends Component {
     // },
 
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (com) => {
         return (
           // <Space size="middle">
           <div>
-            <Button
-              className="btn-delete"
-              type="danger"
-              onClick={() => this.handleToggleDeletedModal(true, com.id)}
-            >
+            <Button className='btn-delete' type='danger' onClick={() => this.handleToggleDeletedModal(true, com.id)}>
               Delete
             </Button>
 
-            <Button
-              className="btn-update"
-              type="primary"
-              onClick={() => this.handleUpdate(com.id)}
-            >
+            <Button className='btn-update' type='primary' onClick={() => this.handleUpdate(com.id)}>
               Update
             </Button>
           </div>
@@ -86,19 +63,19 @@ class ProductType extends Component {
       totalItem: 0,
       visibleDelete: false,
       productIdDelete: null,
-      searchInput: "",
-      productname: "",
-      price: "",
-      amount: "",
-      illustration: "",
-      brand: "",
-      productcode: "",
-      description: "",
+      searchInput: '',
+      productname: '',
+      price: '',
+      amount: '',
+      illustration: '',
+      brand: '',
+      productcode: '',
+      description: '',
       errors: {},
       loading: false,
-      imageUrl: "",
-      paid: "",
-      status: "",
+      imageUrl: '',
+      paid: '',
+      status: '',
     };
   }
   componentDidMount() {
@@ -113,23 +90,23 @@ class ProductType extends Component {
   };
   getBase64 = (img, callback) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => callback(reader.result));
+    reader.addEventListener('load', () => callback(reader.result));
     reader.readAsDataURL(img);
   };
 
   beforeUpload = (file) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG file!");
+      message.error('You can only upload JPG/PNG file!');
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
-      message.error("Image must smaller than 2MB!");
+      message.error('Image must smaller than 2MB!');
     }
     return isJpgOrPng && isLt2M;
   };
   handleChange = (info) => {
-    if (info.file.status === "uploading") {
+    if (info.file.status === 'uploading') {
       this.setState({
         loading: true,
       });
@@ -137,13 +114,13 @@ class ProductType extends Component {
 
       return;
     }
-    if (info.file.status === "done") {
+    if (info.file.status === 'done') {
       // Get this url from response in real world.
       this.setState({
         // loading: true,
         illustration: info.file.response.name,
       });
-      console.log("info:", info.file.response.name);
+      console.log('info:', info.file.response.name);
 
       this.getBase64(info.file.originFileObj, (imageUrl) =>
         this.setState({
@@ -156,7 +133,7 @@ class ProductType extends Component {
 
   getProduct = async () => {
     await axios
-      .get("http://localhost:8080/products/api/get-product-type")
+      .get('http://localhost:8080/products/api/get-product-type')
       .then((response) => {
         console.log(response.data.data);
         this.setState({
@@ -170,7 +147,7 @@ class ProductType extends Component {
   };
 
   handleUpdate = (orderid) => {
-    console.log("bao:", orderid, "-", this.state.paid, "-", this.state.status);
+    console.log('bao:', orderid, '-', this.state.paid, '-', this.state.status);
     this.setState({ isShowModal: true, productId: orderid });
   };
 
@@ -180,47 +157,38 @@ class ProductType extends Component {
   };
 
   handleDelete = (productId) => {
-    this.props.deleteProduct(productId).then((res) => {
-      console.log("status:", res.data.status);
-      if (res.data.status === "success") {
-        console.log("okkkk");
+    this.props.deleteProductType(productId).then((res) => {
+      if (res.data.status === 200) {
         this.getProduct();
         this.handleToggleDeletedModal(false, 0);
-        notification("success", `Delete Product Successfully`, "");
+        notification('success', `Delete Product Type Successfully`, '');
       }
     });
   };
 
   handleOk = async () => {
-    console.log(
-      "ddsds:",
-      this.state.productId,
-      "-",
-      this.state.paid,
-      "-",
-      this.state.status
-    );
+    console.log('ddsds:', this.state.productId, '-', this.state.paid, '-', this.state.status);
     const obj = {
       orderid: this.state.productId,
       paid: this.state.paid,
       status: this.state.status,
     };
     this.props.updateOrder(obj).then((data) => {
-      if (data.data.status === "success") {
-        notification("success", "Update successfully");
+      if (data.data.status === 'success') {
+        notification('success', 'Update successfully');
       }
       this.setState({ isShowModal: false });
     });
   };
   cleanData = () => {
     this.setState({
-      brand: "",
-      productname: "",
-      productcode: "",
-      illustration: "",
-      description: "",
-      price: "",
-      amount: "",
+      brand: '',
+      productname: '',
+      productcode: '',
+      illustration: '',
+      description: '',
+      price: '',
+      amount: '',
     });
   };
   handleAva = () => {};
@@ -246,21 +214,17 @@ class ProductType extends Component {
       <div>
         {/* <Card header={{ title: "Product" }}> */}
         <Card
-          header={{ title: "Product" }}
+          header={{ title: 'Product' }}
           extra={
             <>
               <Search
-                placeholder="Search"
+                placeholder='Search'
                 // onSearch={this.onSearch}
                 style={{ width: 200 }}
               />
 
               <React.Fragment>
-                <Button
-                  className="btn-add"
-                  type="primary"
-                  onClick={this.handleModal}
-                >
+                <Button className='btn-add' type='primary' onClick={this.handleModal}>
                   Add product type
                 </Button>
               </React.Fragment>
@@ -268,29 +232,23 @@ class ProductType extends Component {
           }
         >
           <Modal
-            title="Are you sure?"
+            title='Are you sure?'
             visible={this.state.visibleDelete}
             onOk={() => this.handleDelete(this.state.productIdDelete)}
-            okType={"danger"}
-            onCancel={() =>
-              this.handleToggleDeletedModal(false, this.state.productIdDelete)
-            }
+            okType={'danger'}
+            onCancel={() => this.handleToggleDeletedModal(false, this.state.productIdDelete)}
           >
-            <p>Do you really want to delete this product?</p>
+            <p>Do you really want to delete this product type?</p>
           </Modal>
 
-          <Table
-            columns={this.columns}
-            dataSource={this.state.productsInTable}
-            rowKey={(item) => item.userId}
-          />
+          <Table columns={this.columns} dataSource={this.state.productsInTable} rowKey={(item) => item.userId} />
         </Card>
 
         {this.state.isShowModal && (
           <>
             <Modal
-              className="company-details"
-              title={this.state.productId ? "Update Order" : "Add New Product"}
+              className='company-details'
+              title={this.state.productId ? 'Update Order' : 'Add New Product'}
               visible={this.state.isShowModal}
               onOk={this.handleOk}
               onCancel={this.handleCancel}
@@ -300,11 +258,11 @@ class ProductType extends Component {
                   <label>Paid: </label>
                   <br></br>
 
-                  <Radio.Group id="paid" onChange={this.onChange}>
-                    <Radio id="paid" value="true">
+                  <Radio.Group id='paid' onChange={this.onChange}>
+                    <Radio id='paid' value='true'>
                       True
                     </Radio>
-                    <Radio id="paid" value="false">
+                    <Radio id='paid' value='false'>
                       False
                     </Radio>
                   </Radio.Group>
@@ -314,14 +272,14 @@ class ProductType extends Component {
                   <label>Status: </label>
                   <br></br>
 
-                  <Radio.Group id="status" onChange={this.onChange}>
-                    <Radio id="status" value="Coming">
+                  <Radio.Group id='status' onChange={this.onChange}>
+                    <Radio id='status' value='Coming'>
                       Coming
                     </Radio>
-                    <Radio id="status" value="Delivered">
+                    <Radio id='status' value='Delivered'>
                       Delivered
                     </Radio>
-                    <Radio id="status" value="Canceled">
+                    <Radio id='status' value='Canceled'>
                       Canceled
                     </Radio>
                   </Radio.Group>
@@ -335,12 +293,9 @@ class ProductType extends Component {
   }
 }
 const mapDispatchToProps = (dispatch) => ({
-  deleteProduct: (productId) =>
-    dispatch(productActions.deleteProduct(productId)),
-  updateProduct: (productId, product) =>
-    dispatch(productActions.updateProduct(productId, product)),
-  getProductById: (productId) =>
-    dispatch(productActions.getProductById(productId)),
+  deleteProductType: (productId) => dispatch(productActions.deleteProductType(productId)),
+  updateProduct: (productId, product) => dispatch(productActions.updateProduct(productId, product)),
+  getProductById: (productId) => dispatch(productActions.getProductById(productId)),
   addProduct: (product) => dispatch(productActions.addProduct(product)),
   updateOrder: (data) => dispatch(shopProductActions.updateOrder(data)),
 });

@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
 // import { UserRoles } from 'src/shared/library/helpers/userRoles';
 
 const orderService = {
   getOrder: () => {
     return (dispatch) => {
-      return axios.get(`./shop/api/getproduct`);
+      return axios.get(`./api/get-order`);
     };
   },
   getOrderDetail: (orderId) => {
